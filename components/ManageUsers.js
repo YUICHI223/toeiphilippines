@@ -16,6 +16,8 @@ export default function ManageUsers() {
   const [showModal, setShowModal] = useState(false)
   const [modalMode, setModalMode] = useState('add')
   const [currentUser, setCurrentUser] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   useEffect(() => {
     fetchLookups()
@@ -300,7 +302,34 @@ export default function ManageUsers() {
   const onlineUsers = users.filter(u => isUserOnline(u)).length
   const adminCount = users.filter(u => u.role === 'Administrator').length
 
-  function formatLastActive(v) {
+  // Pagination calculations
+  const totalUsersFiltered = filteredUsers.length
+  const totalPages = Math.max(1, Math.ceil(totalUsersFiltered / pageSize))
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, statusFilter])
+
+  function getPageItems() {
+    const items = []
+    const maxVisible = 5
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 1; i <= totalPages; i++) items.push(i)
+    } else {
+      items.push(1)
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+      if (start > 2) items.push('...')
+      for (let i = start; i <= end; i++) items.push(i)
+      if (end < totalPages - 1) items.push('...')
+      items.push(totalPages)
+    }
+    return items
+  }
     if (!v) return '-'
     try {
       if (v.toDate && typeof v.toDate === 'function') return v.toDate().toLocaleString()
@@ -335,10 +364,18 @@ export default function ManageUsers() {
         </div>
 
         <div className="grid grid-cols-4 gap-4 mb-6 mt-4">
-          <DashboardCard title="Total Users"><div className="text-2xl font-bold">{totalUsers}</div></DashboardCard>
-          <DashboardCard title="Online Users"><div className="text-2xl font-bold">{onlineUsers}</div></DashboardCard>
-          <DashboardCard title="Admins"><div className="text-2xl font-bold">{adminCount}</div></DashboardCard>
-          <DashboardCard title="Online Now"><div className="text-2xl font-bold">{onlineUsers}</div></DashboardCard>
+          <DashboardCard title="Total Users" variant="purple" icon="👥">
+            <div className="text-2xl font-bold">{totalUsers}</div>
+          </DashboardCard>
+          <DashboardCard title="Active Users" variant="green" icon="✓">
+            <div className="text-2xl font-bold">{onlineUsers}</div>
+          </DashboardCard>
+          <DashboardCard title="Administrators" variant="orange" icon="⚙️">
+            <div className="text-2xl font-bold">{adminCount}</div>
+          </DashboardCard>
+          <DashboardCard title="Online Now" variant="teal" icon="🌐">
+            <div className="text-2xl font-bold">{onlineUsers}</div>
+          </DashboardCard>
         </div>
 
         <div className="mb-4 flex justify-between items-center">
@@ -359,58 +396,126 @@ export default function ManageUsers() {
           </div>
         </div>
 
-        {/* WIDER TABLE */}
-        <div className="bg-panel-dark rounded shadow overflow-x-auto w-full">
-          <table className="min-w-[1400px] w-full text-sm table-auto">
-            <colgroup>
-              <col style={{ width: '22%' }} /> {/* User Name */}
-              <col style={{ width: '12%' }} /> {/* Employee ID */}
-              <col style={{ width: '14%' }} /> {/* Job Title */}
-              <col style={{ width: '18%' }} /> {/* Department */}
-              <col style={{ width: '8%' }} />  {/* Status */}
-              <col style={{ width: '16%' }} /> {/* Last Active */}
-              <col style={{ width: '10%' }} /> {/* Actions */}
-            </colgroup>
-            <thead>
-              <tr className="border-b border-blue-900/30">
-                <th className="px-6 py-4 text-left text-sm font-semibold">USER NAME</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">EMPLOYEE ID</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">JOB TITLE</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">DEPARTMENT/SECTION</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">STATUS</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">LAST ACTIVE</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={7} className="p-4 text-center text-gray-400">Loading...</td></tr>
-              ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan={7} className="p-4 text-center text-gray-400 text-xs">No users found</td></tr>
-              ) : filteredUsers.map((u, i) => (
-                <tr key={i} className="border-b border-blue-900/20">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-sm">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : (u.username || u.email || '-')}</div>
-                    <div className="text-xs text-gray-400 mt-1">{u.email || '-'}</div>
-                  </td>
-                  <td className="px-6 py-4 text-sm">{u.employeeId || u.id || '-'}</td>
-                  <td className="px-6 py-4 text-sm">{(u.jobTitle) || (u.jobId && jobs.find(j => j.id === u.jobId)?.name) || '-'}</td>
-                  <td className="px-6 py-4 text-sm">{(u.department) || (u.departmentId && departments.find(d => d.id === u.departmentId)?.name) || u.section || '-'}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center gap-1 ${isUserOnline(u) ? 'text-green-300' : 'text-gray-400'}`}>
-                      <span className={`w-2 h-2 rounded-full ${isUserOnline(u) ? 'bg-green-400' : 'bg-gray-600'}`} />
-                      {isUserOnline(u) ? 'Online' : 'Offline'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">{formatLastActive(u.lastActive)}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <button className="text-blue-400 mr-1 text-xs" onClick={() => { setModalMode('edit'); setCurrentUser(u); setShowModal(true) }}>✎ Edit</button>
-                    <button className="text-red-400 text-xs" onClick={() => handleDeleteUser(u.id)}>🗑️ Delete</button>
-                  </td>
+        {/* USER TABLE */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-panel-dark rounded shadow w-full max-w-[1150px] overflow-x-auto">
+            <table className="min-w-full w-full text-sm table-auto">
+              <colgroup>
+                <col style={{ width: '22%' }} /> {/* User Name */}
+                <col style={{ width: '12%' }} /> {/* Employee ID */}
+                <col style={{ width: '14%' }} /> {/* Job Title */}
+                <col style={{ width: '18%' }} /> {/* Department */}
+                <col style={{ width: '8%' }} />  {/* Status */}
+                <col style={{ width: '16%' }} /> {/* Last Active */}
+                <col style={{ width: '10%' }} /> {/* Actions */}
+              </colgroup>
+              <thead>
+                <tr className="border-b border-blue-900/30">
+                  <th className="px-6 py-4 text-left text-sm font-semibold">USER NAME</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">EMPLOYEE ID</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">JOB TITLE</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">DEPARTMENT/SECTION</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">STATUS</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">LAST ACTIVE</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">ACTIONS</th>
                 </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={7} className="p-4 text-center text-gray-400">Loading...</td></tr>
+                ) : paginatedUsers.length === 0 ? (
+                  <tr><td colSpan={7} className="p-4 text-center text-gray-400 text-xs">No users found</td></tr>
+                ) : paginatedUsers.map((u, i) => (
+                  <tr 
+                    key={u.id} 
+                    className={`border-b border-blue-900/20 ${i % 2 === 0 ? 'bg-blue-950/20' : 'bg-transparent'}`}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-sm">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : (u.username || u.email || '-')}</div>
+                      <div className="text-xs text-gray-400 mt-1">{u.email || '-'}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">{u.employeeId || u.id || '-'}</td>
+                    <td className="px-6 py-4 text-sm">{(u.jobTitle) || (u.jobId && jobs.find(j => j.id === u.jobId)?.name) || '-'}</td>
+                    <td className="px-6 py-4 text-sm">{(u.department) || (u.departmentId && departments.find(d => d.id === u.departmentId)?.name) || u.section || '-'}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`inline-flex items-center gap-1 ${isUserOnline(u) ? 'text-green-300' : 'text-gray-400'}`}>
+                        <span className={`w-2 h-2 rounded-full ${isUserOnline(u) ? 'bg-green-400' : 'bg-gray-600'}`} />
+                        {isUserOnline(u) ? 'Online' : 'Offline'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm">{formatLastActive(u.lastActive)}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <button className="text-blue-400 mr-1 text-xs" onClick={() => { setModalMode('edit'); setCurrentUser(u); setShowModal(true) }}>✎ Edit</button>
+                      <button className="text-red-400 text-xs" onClick={() => handleDeleteUser(u.id)}>🗑️ Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="flex justify-center items-center gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-300">Items per page:</label>
+            <select 
+              value={pageSize} 
+              onChange={(e) => {
+                setPageSize(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="bg-panel-muted px-3 py-1 rounded text-gray-200 border border-white/20 text-sm"
+            >
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <div className="bg-panel-muted rounded-full px-4 py-2 flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded-full bg-accent-blue text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+            >
+              ← Prev
+            </button>
+
+            <div className="flex items-center gap-1">
+              {getPageItems().map((item, idx) => (
+                <span key={idx}>
+                  {item === '...' ? (
+                    <span className="px-2 text-gray-400">…</span>
+                  ) : (
+                    <button
+                      onClick={() => typeof item === 'number' && setCurrentPage(item)}
+                      className={`px-3 py-1 rounded-full text-sm transition ${
+                        item === currentPage
+                          ? 'bg-accent-blue text-white'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )}
+                </span>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded-full bg-accent-blue text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+            >
+              Next →
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-400">
+            Showing {startIndex + 1}-{Math.min(endIndex, totalUsersFiltered)} of {totalUsersFiltered}
+          </div>
         </div>
 
         {/* Modal for Add/Edit User */}

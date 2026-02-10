@@ -476,7 +476,7 @@ export default function RoleManager() {
           <h2 className="text-lg font-semibold mb-2 text-white">Role Templates</h2>
           <p className="text-sm text-gray-400 mb-6">Quickly create roles from predefined templates</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Object.entries(roleTemplates).map(([roleName, template]) => {
               const roleExists = roles.some(r => r.name === roleName)
               return (
@@ -493,7 +493,7 @@ export default function RoleManager() {
                     {roleExists && <span className="text-green-400 text-lg">✓</span>}
                   </div>
                   
-                  <p className="text-xs text-gray-400 mb-3 line-clamp-2">{template.description}</p>
+                  <p className="text-xs text-gray-400 mb-3">{template.description}</p>
                   
                   <div className="text-xs text-gray-500 mb-3">
                     {template.permissions.length} permissions
