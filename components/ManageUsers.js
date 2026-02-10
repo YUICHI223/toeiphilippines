@@ -330,6 +330,8 @@ export default function ManageUsers() {
     }
     return items
   }
+
+  function formatLastActive(v) {
     if (!v) return '-'
     try {
       if (v.toDate && typeof v.toDate === 'function') return v.toDate().toLocaleString()
@@ -397,8 +399,8 @@ export default function ManageUsers() {
         </div>
 
         {/* USER TABLE */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-panel-dark rounded shadow w-full max-w-[1150px] overflow-x-auto">
+        <div className="mb-6">
+          <div className="bg-panel-dark rounded shadow overflow-x-auto">
             <table className="min-w-full w-full text-sm table-auto">
               <colgroup>
                 <col style={{ width: '22%' }} /> {/* User Name */}

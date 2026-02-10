@@ -472,171 +472,183 @@ export default function RoleManager() {
       <div className="bg-panel-dark w-full px-8 py-6">
         
         {/* TEMPLATES SECTION */}
-        <div className="mb-12">
-          <h2 className="text-lg font-semibold mb-2 text-white">Role Templates</h2>
-          <p className="text-sm text-gray-400 mb-6">Quickly create roles from predefined templates</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(roleTemplates).map(([roleName, template]) => {
-              const roleExists = roles.some(r => r.name === roleName)
-              return (
-                <div 
-                  key={roleName}
-                  className={`p-4 rounded border transition-all ${
-                    roleExists 
-                      ? 'border-green-900/40 bg-green-900/10' 
-                      : 'border-blue-900/30 bg-panel-muted hover:border-blue-900/60'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-sm font-semibold text-white flex-1">{roleName}</h3>
-                    {roleExists && <span className="text-green-400 text-lg">✓</span>}
+        <div className="mb-12 flex justify-center">
+          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-8">
+            <h2 className="text-lg font-semibold mb-2 text-white">Role Templates</h2>
+            <p className="text-sm text-gray-400 mb-6">Quickly create roles from predefined templates</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Object.entries(roleTemplates).map(([roleName, template]) => {
+                const roleExists = roles.some(r => r.name === roleName)
+                return (
+                  <div 
+                    key={roleName}
+                    className={`p-4 rounded border transition-all ${
+                      roleExists 
+                        ? 'border-blue-900/40 bg-blue-900/10' 
+                        : 'border-blue-900/30 bg-panel-muted hover:border-blue-900/60'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-sm font-semibold text-white flex-1">{roleName}</h3>
+                      {roleExists && <span className="text-blue-400 text-lg">✓</span>}
+                    </div>
+                    
+                    <p className="text-xs text-gray-400 mb-3">{template.description}</p>
+                    
+                    <div className="text-xs text-gray-500 mb-3">
+                      {template.permissions.length} permissions
+                    </div>
+                    
+                    {!roleExists && (
+                      <button
+                        onClick={() => createRoleFromTemplate(roleName)}
+                        disabled={loading}
+                        className="text-xs text-blue-400 hover:text-blue-300 disabled:text-gray-500"
+                      >
+                        Click to create →
+                      </button>
+                    )}
                   </div>
-                  
-                  <p className="text-xs text-gray-400 mb-3">{template.description}</p>
-                  
-                  <div className="text-xs text-gray-500 mb-3">
-                    {template.permissions.length} permissions
-                  </div>
-                  
-                  {!roleExists && (
-                    <button
-                      onClick={() => createRoleFromTemplate(roleName)}
-                      disabled={loading}
-                      className="text-xs text-blue-400 hover:text-blue-300 disabled:text-gray-500"
-                    >
-                      Click to create →
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         </div>
         
         {/* MANAGEMENT SECTION */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4 text-white">Roles</h2>
-          
-          <div className="mb-6 p-4 bg-panel-muted border border-blue-900/30 rounded">
-            <div className="text-sm text-gray-300">
-              <span className="font-semibold text-white">{roles.length}</span> Total Roles
-              {searchTerm && (
-                <span className="ml-4">
-                  • <span className="font-semibold text-blue-400">{filteredRoles.length}</span> Matching
-                </span>
-              )}
+        <div className="mb-12 flex justify-center">
+          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-8">
+            <h2 className="text-lg font-semibold mb-2 text-white">Roles</h2>
+            <p className="text-sm text-gray-400 mb-6">Manage user roles and permissions</p>
+            
+            <div className="mb-6 p-4 bg-panel-muted border border-blue-900/30 rounded">
+              <div className="text-sm text-gray-300">
+                <span className="font-semibold text-white">{roles.length}</span> Total Roles
+                {searchTerm && (
+                  <span className="ml-4">
+                    • <span className="font-semibold text-blue-400">{filteredRoles.length}</span> Matching
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="flex justify-between items-center mb-6">
-            <input
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="bg-panel-muted px-4 py-2 rounded text-gray-200 w-1/3 border border-white/20 placeholder:text-gray-400"
-              placeholder="Search roles..."
-            />
-            <div className="flex gap-3">
-              <button
-                className="px-4 py-2 rounded text-gray-200 border border-white/20 hover:bg-blue-900/20"
-                onClick={() => fetchRoles()}
-              >
-                🔄 Refresh
-              </button>
-              <button
-                className="bg-accent-blue px-4 py-2 rounded text-white font-semibold"
-                onClick={openAddModal}
-              >
-                + Create Role
-              </button>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="text-center text-gray-400 py-8">Loading roles...</div>
-          ) : filteredRoles.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">No roles found</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredRoles.map((role) => (
-                <div 
-                  key={role.docId} 
-                  className="bg-panel-muted border border-blue-900/30 rounded p-4 hover:border-blue-900/60 transition-colors"
+            <div className="flex justify-between items-center mb-6">
+              <input
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="bg-panel-muted px-4 py-2 rounded text-gray-200 w-1/3 border border-white/20 placeholder:text-gray-400"
+                placeholder="Search roles..."
+              />
+              <div className="flex gap-3 items-center">
+                <button
+                  className="px-4 py-2 rounded text-gray-200 border border-white/20 hover:bg-blue-900/20"
+                  onClick={() => fetchRoles()}
+                  aria-label="Refresh roles"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-white">{role.name}</h3>
-                      <p className="text-xs text-gray-400 mt-1">{role.description || '-'}</p>
-                    </div>
-                    <div className="flex gap-2 ml-2">
-                      <button 
-                        className="text-blue-400 hover:text-blue-300 text-lg"
-                        onClick={() => openEditModal(role)}
-                        title="Edit"
-                      >
-                        ✎
-                      </button>
-                      <button 
-                        className="text-red-400 hover:text-red-300 text-lg"
-                        onClick={() => handleDeleteRole(role.docId)}
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
+                  🔄 Refresh
+                </button>
 
-                  <div className="text-xs text-gray-400 mb-3 pb-3 border-b border-blue-900/20">
-                    <div>ID: {role.docId}</div>
-                    <div className="text-xs text-gray-500 mt-1">Updated: {new Date().toLocaleTimeString()}</div>
-                  </div>
+                <button
+                  onClick={openAddModal}
+                  className="inline-flex items-center gap-2 bg-accent-blue px-3 py-2 rounded text-white font-semibold hover:bg-blue-600"
+                  aria-label="Create role"
+                >
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-white/10 text-white">+</span>
+                  <span className="text-sm">Create Role</span>
+                </button>
+              </div>
+            </div>
 
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <div className="text-xs text-gray-400 mb-1">Users</div>
-                      <div className="text-lg font-bold text-white">0</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-400 mb-1">Permissions</div>
-                      <div className="text-lg font-bold text-white">{role.permissions?.length || 0}</div>
-                    </div>
-                  </div>
-
-                  {role.permissions && role.permissions.length > 0 && (
-                    <div>
-                      <div className="text-xs font-semibold text-gray-300 mb-2">
-                        Permissions ({role.permissions.length}):
+            {loading ? (
+              <div className="text-center text-gray-400 py-8">Loading roles...</div>
+            ) : filteredRoles.length === 0 ? (
+              <div className="text-center text-gray-400 py-8">No roles found</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredRoles.map((role) => (
+                  <div 
+                    key={role.docId} 
+                    className="bg-panel-muted border border-blue-900/30 rounded p-4 hover:border-blue-900/60 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-sm font-semibold text-white">{role.name}</h3>
+                        <p className="text-xs text-gray-400 mt-1">{role.description || '-'}</p>
                       </div>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {role.permissions.slice(0, 3).map((perm, i) => (
-                          <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300">
-                            {perm}
-                          </span>
-                        ))}
-                      </div>
-                      {role.permissions.length > 3 && (
+                      <div className="flex gap-2 ml-2">
                         <button
-                          className="text-xs text-blue-400 hover:text-blue-300"
-                          onClick={() => setExpandedRoles({ ...expandedRoles, [role.id]: !expandedRoles[role.id] })}
+                          onClick={() => openEditModal(role)}
+                          title="Edit"
+                          aria-label={`Edit ${role.name}`}
+                          className="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-500 text-white transition"
                         >
-                          {expandedRoles[role.id] ? '▼' : '▶'} Show all {role.permissions.length} permissions
+                          <span className="text-sm">✎</span>
                         </button>
-                      )}
-                      {expandedRoles[role.id] && role.permissions.length > 3 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {role.permissions.slice(3).map((perm, i) => (
+
+                        <button
+                          onClick={() => handleDeleteRole(role.docId)}
+                          title="Delete"
+                          aria-label={`Delete ${role.name}`}
+                          className="w-8 h-8 flex items-center justify-center rounded-md bg-red-600 hover:bg-red-500 text-white transition"
+                        >
+                          <span className="text-sm">🗑️</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-gray-400 mb-3 pb-3 border-b border-blue-900/20">
+                      <div>ID: {role.docId}</div>
+                      <div className="text-xs text-gray-500 mt-1">Updated: {new Date().toLocaleTimeString()}</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div>
+                        <div className="text-xs text-gray-400 mb-1">Users</div>
+                        <div className="text-lg font-bold text-white">0</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400 mb-1">Permissions</div>
+                        <div className="text-lg font-bold text-white">{role.permissions?.length || 0}</div>
+                      </div>
+                    </div>
+
+                    {role.permissions && role.permissions.length > 0 && (
+                      <div>
+                        <div className="text-xs font-semibold text-gray-300 mb-2">
+                          Permissions ({role.permissions.length}):
+                        </div>
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {role.permissions.slice(0, 3).map((perm, i) => (
                             <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300">
                               {perm}
                             </span>
                           ))}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                        {role.permissions.length > 3 && (
+                          <button
+                            className="text-xs text-blue-400 hover:text-blue-300"
+                            onClick={() => setExpandedRoles({ ...expandedRoles, [role.id]: !expandedRoles[role.id] })}
+                          >
+                            {expandedRoles[role.id] ? '▼' : '▶'} Show all {role.permissions.length} permissions
+                          </button>
+                        )}
+                        {expandedRoles[role.id] && role.permissions.length > 3 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {role.permissions.slice(3).map((perm, i) => (
+                              <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300">
+                                {perm}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Modal for Add/Edit Role */}
