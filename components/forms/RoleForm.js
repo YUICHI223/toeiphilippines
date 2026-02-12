@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function RoleForm({
   modalMode,
@@ -6,12 +6,25 @@ export default function RoleForm({
   setFormData,
   selectedPermissions,
   setSelectedPermissions,
-  allPermissions,
+  availablePermissions,
   handleAddRole,
   handleEditRole,
   loading,
   setShowModal
 }) {
+  const [internalSelected, setInternalSelected] = useState(selectedPermissions || [])
+
+  // Keep internalSelected in sync when parent changes selectedPermissions
+  React.useEffect(() => setInternalSelected(selectedPermissions || []), [selectedPermissions])
+
+  function permissionKey(s) {
+    if (!s && s !== 0) return ''
+    return String(s)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '')
+  }
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-panel-dark p-6 rounded shadow max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
@@ -48,54 +61,41 @@ export default function RoleForm({
             />
           </div>
 
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-gray-300">Permissions * ({selectedPermissions.length} permission(s))</label>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
-              {allPermissions.map((permCategory, idx) => {
-                const isSelected = selectedPermissions.some(p => permCategory.items.includes(p))
-                return (
-                  <div 
-                    key={idx}
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedPermissions(selectedPermissions.filter(p => !permCategory.items.includes(p)))
-                      } else {
-                        setSelectedPermissions([...selectedPermissions, ...permCategory.items])
-                      }
-                    }}
-                    className={`p-4 rounded border-2 cursor-pointer transition ${
-                      isSelected 
-                        ? 'border-accent-blue bg-accent-blue/10' 
-                        : 'border-white/20 bg-panel-muted hover:bg-panel-muted/80'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => {}}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-4 h-4 accent-accent-blue mt-1 cursor-pointer"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-gray-200 mb-1">{permCategory.category}</h4>
-                        <p className="text-xs text-gray-400">
-                          Grants access to: {permCategory.items.slice(0, 2).join(', ')}{permCategory.items.length > 2 ? ` +${permCategory.items.length - 2} more` : ''}
-                        </p>
-                      </div>
-                    </div>
+          <div className="max-h-96 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            {(availablePermissions || []).map((perm, idx) => {
+              const key = permissionKey(perm)
+              const checked = internalSelected.includes(key)
+              const toggle = (e) => {
+                e.stopPropagation()
+                if (checked) {
+                  const next = internalSelected.filter(p => p !== key)
+                  setInternalSelected(next)
+                  setSelectedPermissions(next)
+                } else {
+                  const next = [...internalSelected, key]
+                  setInternalSelected(next)
+                  setSelectedPermissions(next)
+                }
+              }
+
+              // human-friendly label: prefer original perm string
+              const label = String(perm)
+
+              return (
+                <label key={idx} className="p-3 rounded border border-white/10 bg-panel-muted flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4" checked={checked} onChange={toggle} />
+                  <div className="flex flex-col text-sm">
+                    <span className="text-gray-200">{label}</span>
+                    <span className="text-[10px] text-gray-500">{key}</span>
                   </div>
-                )
-              })}
-            </div>
+                </label>
+              )
+            })}
+          </div>
             
             <div className="mt-4 text-xs text-gray-400">
               Current selection: {selectedPermissions.length} permission(s)
             </div>
-          </div>
 
           <div className="flex gap-3 justify-end">
             <button

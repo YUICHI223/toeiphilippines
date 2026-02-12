@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { db, auth } from '../lib/firebase'
 import RoleForm from './forms/RoleForm'
 
 export default function RoleManager() {
   const [roles, setRoles] = useState([])
+  const [userCounts, setUserCounts] = useState({})
+  const [foundUserRoles, setFoundUserRoles] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -49,6 +51,16 @@ export default function RoleManager() {
     { category: 'Onhold Productions', items: ['On Hold Productions'] },
     { category: 'Pdf Management', items: ['Send PDF to Payroll'] },
   ]
+
+  // Helper: normalize a permission label or key to a canonical key (snake_case)
+  function permissionKey(s) {
+    if (!s && s !== 0) return ''
+    return String(s)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '')
+  }
 
   const predefinedRoles = [
     'ADMINISTRATOR',
@@ -213,6 +225,8 @@ export default function RoleManager() {
           fetchRoles()
         }
       }
+      // Ensure we compute user counts by fetching roles again (this runs the user-scan/count logic)
+      await fetchRoles()
     } catch (e) {
       console.error('Error loading roles:', e)
       alert('Failed to load roles. See console for details.')
@@ -337,6 +351,45 @@ export default function RoleManager() {
       }))
       console.log(`Fetched ${rolesData.length} roles from Firebase`)
       setRoles(rolesData)
+
+      // Fetch users once to compute counts per role
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'))
+        const counts = {}
+        // initialize counts for known role docIds
+        rolesData.forEach(r => { counts[r.docId] = 0 })
+
+        const found = new Set()
+        usersSnap.docs.forEach(uDoc => {
+          const u = uDoc.data()
+          const roleIdFromUser = u?.roleId
+          const roleNameFromUser = u?.role
+
+          let matchedRole = null
+
+          if (roleIdFromUser) {
+            matchedRole = rolesData.find(r => r.docId === roleIdFromUser || r.id === roleIdFromUser || String(r.docId) === String(roleIdFromUser))
+          }
+
+          if (!matchedRole && roleNameFromUser) {
+            matchedRole = rolesData.find(r => (r.name || '').toLowerCase().trim() === String(roleNameFromUser || '').toLowerCase().trim())
+          }
+
+          if (matchedRole) {
+            counts[matchedRole.docId] = (counts[matchedRole.docId] || 0) + 1
+          }
+
+          // record raw role references we found on user documents
+          if (u?.role) found.add(String(u.role))
+          if (u?.roleId) found.add(String(u.roleId))
+        })
+
+        setFoundUserRoles(Array.from(found))
+
+        setUserCounts(counts)
+      } catch (e) {
+        console.warn('Failed to fetch users for counts', e)
+      }
     } catch (e) {
       console.error('Error fetching roles:', e)
       alert('Failed to load roles. See console for details.')
@@ -353,10 +406,12 @@ export default function RoleManager() {
     }
     try {
       setLoading(true)
+      // Convert selected display labels to canonical keys before saving
+      const toSave = (selectedPermissions || []).map(p => permissionKey(p))
       await addDoc(collection(db, 'roles'), {
         name: formData.name,
         description: formData.description,
-        permissions: selectedPermissions,
+        permissions: toSave,
         createdAt: serverTimestamp()
       })
       setShowModal(false)
@@ -379,10 +434,12 @@ export default function RoleManager() {
     }
     try {
       setLoading(true)
+      // Convert selected display labels to canonical keys before saving
+      const toSave = (selectedPermissions || []).map(p => permissionKey(p))
       await updateDoc(doc(db, 'roles', currentRole.docId), {
         name: formData.name,
         description: formData.description,
-        permissions: selectedPermissions,
+        permissions: toSave,
         updatedAt: serverTimestamp()
       })
       setShowModal(false)
@@ -451,7 +508,13 @@ export default function RoleManager() {
       description: role.description || '',
       permissions: (role.permissions || []).join(', ')
     })
-    setSelectedPermissions(role.permissions || [])
+    // Use stored permission keys (snake_case) directly for checkbox state
+    try {
+      const keys = (role.permissions || []).map(p => permissionKey(p))
+      setSelectedPermissions(keys)
+    } catch (e) {
+      setSelectedPermissions(role.permissions || [])
+    }
     setShowModal(true)
   }
 
@@ -466,6 +529,15 @@ export default function RoleManager() {
     if (aIsPredefined !== bIsPredefined) return bIsPredefined - aIsPredefined
     return (a.name || '').localeCompare(b.name || '')
   })
+
+  const availablePermissions = useMemo(() => {
+    try {
+      const all = roles.flatMap(r => r.permissions || [])
+      return Array.from(new Set(all))
+    } catch (e) {
+      return []
+    }
+  }, [roles])
 
   return (
     <div className="w-full">
@@ -531,6 +603,11 @@ export default function RoleManager() {
                   </span>
                 )}
               </div>
+              {foundUserRoles && foundUserRoles.length > 0 && (
+                <div className="mt-2 text-xs text-gray-400">
+                  Detected in users: {foundUserRoles.slice(0,10).join(', ')}{foundUserRoles.length > 10 ? ` (+${foundUserRoles.length-10} more)` : ''}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-center mb-6">
@@ -604,8 +681,8 @@ export default function RoleManager() {
 
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div>
-                        <div className="text-xs text-gray-400 mb-1">Users</div>
-                        <div className="text-lg font-bold text-white">0</div>
+                          <div className="text-xs text-gray-400 mb-1">Users</div>
+                          <div className="text-lg font-bold text-white">{userCounts[role.docId] || 0}</div>
                       </div>
                       <div>
                         <div className="text-xs text-gray-400 mb-1">Permissions</div>
@@ -659,7 +736,7 @@ export default function RoleManager() {
             setFormData={setFormData}
             selectedPermissions={selectedPermissions}
             setSelectedPermissions={setSelectedPermissions}
-            allPermissions={allPermissions}
+            availablePermissions={availablePermissions}
             handleAddRole={handleAddRole}
             handleEditRole={handleEditRole}
             loading={loading}
