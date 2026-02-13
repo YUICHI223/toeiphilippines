@@ -39,43 +39,78 @@ export default function LoginPage() {
         }
       }
 
-      // Get role from Firestore using the direct role field first, then try roleId
-      // User documents should have a 'role' field for quick access
-      let userRole = userData?.role || ''
+      // Get role from Firestore - check 'roles' field on user document
+      let extractedRoles = []
       
-      // If no direct role field, try to fetch from roles collection using roleId
-      if (!userRole && userData?.roleId) {
+      // Priority 1: Check 'roles' field (can be array or string)
+      const rolesField = userData?.roles
+      console.log('User roles field:', rolesField, 'Type:', typeof rolesField)
+      
+      if (Array.isArray(rolesField)) {
+        extractedRoles = rolesField.map(r => String(r || '').toLowerCase().trim()).filter(Boolean)
+        console.log('✓ Parsed roles from array:', extractedRoles)
+      } else if (rolesField && typeof rolesField === 'string') {
+        extractedRoles = String(rolesField).toLowerCase().split(/[,;|\\/]+/).map(r => r.trim()).filter(Boolean)
+        console.log('✓ Parsed roles from string:', extractedRoles)
+      }
+      
+      // Priority 2: Try roleId lookup in roles collection if still empty
+      if (extractedRoles.length === 0 && userData?.roleId) {
         try {
-          console.log('Attempting to fetch role with ID:', userData.roleId)
-          const roleDoc = await getDoc(doc(db, 'roles', userData.roleId))
+          const roleIdValue = userData.roleId
+          console.log('Looking up roleId:', roleIdValue)
+          
+          // First try: direct document ID lookup
+          let roleDoc = await getDoc(doc(db, 'roles', roleIdValue))
+          
+          // If not found, try searching for a role with id field matching roleIdValue
+          if (!roleDoc.exists()) {
+            console.log('Direct ID lookup failed, searching by id field...')
+            const rolesSnap = await getDocs(query(collection(db, 'roles'), where('id', '==', roleIdValue)))
+            if (!rolesSnap.empty) {
+              roleDoc = rolesSnap.docs[0]
+            }
+          }
+          
           if (roleDoc.exists()) {
-            userRole = roleDoc.data().name || ''
-            console.log('✓ Fetched role from roles collection:', userRole)
+            const roleName = roleDoc.data().name || ''
+            if (roleName) {
+              extractedRoles.push(String(roleName).toLowerCase().trim())
+              console.log('✓ Found role by roleId:', roleName)
+            }
           }
         } catch (e) {
-          console.error('Error fetching role:', e.message)
+          console.error('Error fetching role by roleId:', e.message)
         }
       }
-
-      console.log('FINAL: userRole =', userRole)
-      console.log('Login: User data:', { 
-        roleId: userData?.roleId, 
-        role: userData?.role,
-        jobId: userData?.jobId,
-        jobTitle: userData?.jobTitle 
-      })
-
-      // Redirect based on ROLE only
-      const normalizedRole = (userRole || '').toLowerCase().trim()
       
-      console.log('Normalized role:', normalizedRole)
-      
-      if (normalizedRole.includes('administrator') || normalizedRole === 'admin') {
+      // Priority 3: Try jobTitle as final fallback
+      if (extractedRoles.length === 0 && userData?.jobTitle) {
+        const jobTitle = String(userData.jobTitle).toLowerCase().trim()
+        if (jobTitle) extractedRoles.push(jobTitle)
+        console.log('Fallback to jobTitle:', jobTitle)
+      }
+
+      // Build a normalized string for logging
+      const userRole = extractedRoles.join(', ')
+
+      console.log('FINAL: extractedRoles =', extractedRoles)
+      console.log('Login: User data: roleId=' + userData?.roleId + ', roles=' + userData?.roles)
+
+      // Redirect based on ROLE - check if role NAME CONTAINS key words
+      // Priority: if user has 'artist' in their role name anywhere, send to artist dashboard
+      const hasArtistRole = extractedRoles.some(r => r.includes('artist'))
+      const hasAdminRole = extractedRoles.some(r => r.includes('administrator') || r.includes('admin'))
+
+      console.log('Has artist role?', hasArtistRole)
+      console.log('Has admin role?', hasAdminRole)
+
+      if (hasArtistRole) {
+        console.log('✓ Redirecting to Artist Dashboard (found "artist" in role name)')
+        router.push('/dashboards/artist')
+      } else if (hasAdminRole) {
         console.log('✓ Redirecting to Admin Dashboard')
         router.push('/dashboards/admin')
-      } else if (normalizedRole.includes('artist')) {
-        console.log('✓ Redirecting to Artist Dashboard (role contains "artist")')
-        router.push('/dashboards/artist')
       } else {
         console.log('✓ Redirecting to Default Dashboard (no specific role match)')
         router.push('/dashboard')
