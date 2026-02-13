@@ -93,78 +93,79 @@ export default function JobManager() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-200">
-      <div className="w-64"><Sidebar /></div>
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gray-900 text-gray-200">
+      <Sidebar />
+      <div className="md:ml-64 ml-0 pt-16 md:pt-0">
         <Topbar />
-        <main className="p-6 overflow-y-auto">
+        <main className="p-4 md:p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-6">
               <div>
-                <h1 className="text-2xl font-bold">Jobs Management</h1>
-                <p className="text-sm text-gray-400">Create and manage company job titles and positions</p>
+                <h1 className="text-xl md:text-2xl font-bold">Jobs Management</h1>
+                <p className="text-xs md:text-sm text-gray-400">Create and manage company job titles and positions</p>
               </div>
               <div>
-                <button onClick={handleAddJob} className="bg-accent-blue text-white px-4 py-2 rounded">+ Add Job Title</button>
+                <button onClick={handleAddJob} className="bg-accent-blue text-white px-4 py-2 rounded text-sm w-full md:w-auto">+ Add Job Title</button>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="p-4 bg-panel-muted rounded border border-white/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6">
+              <div className="p-3 md:p-4 bg-panel-muted rounded border border-white/10">
                 <div className="text-xs text-gray-400">Total Job Titles</div>
-                <div className="text-2xl font-bold">{jobs.length}</div>
+                <div className="text-xl md:text-2xl font-bold">{jobs.length}</div>
               </div>
-              <div className="p-4 bg-panel-muted rounded border border-white/10">
+              <div className="p-3 md:p-4 bg-panel-muted rounded border border-white/10">
                 <div className="text-xs text-gray-400">Active Positions</div>
-                <div className="text-2xl font-bold">{jobs.length}</div>
+                <div className="text-xl md:text-2xl font-bold">{jobs.length}</div>
               </div>
-              <div className="p-4 bg-panel-muted rounded border border-white/10">
+              <div className="p-3 md:p-4 bg-panel-muted rounded border border-white/10">
                 <div className="text-xs text-gray-400">Total Employees</div>
-                <div className="text-2xl font-bold">{users.length}</div>
+                <div className="text-xl md:text-2xl font-bold">{users.length}</div>
               </div>
             </div>
 
-            <div className="bg-panel-dark border border-white/10 rounded p-4">
+            <div className="bg-panel-dark border border-white/10 rounded p-3 md:p-4">
               <div className="mb-4">
-                <input placeholder="Search job titles..." className="w-full px-4 py-2 rounded bg-panel-muted text-gray-200" />
+                <input placeholder="Search job titles..." className="w-full px-3 md:px-4 py-2 rounded bg-panel-muted text-gray-200 text-sm" />
               </div>
 
-              <div className="mb-3 text-sm text-gray-400 font-semibold">All Job Titles</div>
+              <div className="mb-3 text-xs md:text-sm text-gray-400 font-semibold">All Job Titles</div>
 
-              <div className="overflow-x-auto">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="min-w-full bg-panel-dark border border-white/10 rounded">
                   <thead>
                     <tr className="text-left text-xs text-gray-400">
-                      <th className="px-6 py-3 border-b border-white/10">JOB TITLE</th>
-                      <th className="px-6 py-3 border-b border-white/10">DESCRIPTION</th>
-                      <th className="px-6 py-3 border-b border-white/10">EMPLOYEES</th>
-                      <th className="px-6 py-3 border-b border-white/10">STATUS</th>
-                      <th className="px-6 py-3 border-b border-white/10">ACTIONS</th>
+                      <th className="px-4 md:px-6 py-3 border-b border-white/10">JOB TITLE</th>
+                      <th className="px-4 md:px-6 py-3 border-b border-white/10">DESCRIPTION</th>
+                      <th className="px-4 md:px-6 py-3 border-b border-white/10">EMPLOYEES</th>
+                      <th className="px-4 md:px-6 py-3 border-b border-white/10">STATUS</th>
+                      <th className="px-4 md:px-6 py-3 border-b border-white/10">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
-                      <tr><td colSpan={5} className="px-6 py-4 text-gray-400">Loading...</td></tr>
+                      <tr><td colSpan={5} className="px-4 md:px-6 py-4 text-gray-400 text-sm">Loading...</td></tr>
                     ) : jobs.length === 0 ? (
-                      <tr><td colSpan={5} className="px-6 py-4 text-gray-400">No jobs found</td></tr>
+                      <tr><td colSpan={5} className="px-4 md:px-6 py-4 text-gray-400 text-sm">No jobs found</td></tr>
                     ) : (
                       jobs.map(job => (
                         <tr key={job.id} className="border-b border-white/6 hover:bg-panel-muted/30">
-                          <td className="px-6 py-4 align-top">
-                            <div className="font-semibold text-gray-200">{job.title || job.name}</div>
+                          <td className="px-4 md:px-6 py-4 align-top">
+                            <div className="font-semibold text-gray-200 text-sm">{job.title || job.name}</div>
                           </td>
-                          <td className="px-6 py-4 align-top text-sm text-gray-400">
+                          <td className="px-4 md:px-6 py-4 align-top text-sm text-gray-400">
                             {job.description || ''}
                           </td>
-                          <td className="px-6 py-4 align-top text-sm text-gray-200">
+                          <td className="px-4 md:px-6 py-4 align-top text-sm text-gray-200">
                             {(job.employees || countUsersForJob(job))} employees
                           </td>
-                          <td className="px-6 py-4 align-top">
+                          <td className="px-4 md:px-6 py-4 align-top">
                             <span className={`px-2 py-1 text-xs rounded-full ${job.status === 'active' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-200'}`}>
                               {job.status || 'active'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 align-top">
+                          <td className="px-4 md:px-6 py-4 align-top">
                             <div className="flex items-center gap-2">
                                 <button onClick={() => { setEditJob(job); setShowJobModal(true) }} className="text-sm px-2 py-1 bg-white/5 rounded">✎</button>
                               <button onClick={() => handleDeleteJob(job.id)} className="text-sm px-2 py-1 bg-red-600 rounded">🗑️</button>
@@ -175,6 +176,38 @@ export default function JobManager() {
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {loading ? (
+                  <div className="text-gray-400 text-sm py-4">Loading...</div>
+                ) : jobs.length === 0 ? (
+                  <div className="text-gray-400 text-sm py-4">No jobs found</div>
+                ) : (
+                  jobs.map(job => (
+                    <div key={job.id} className="bg-panel-muted border border-white/10 rounded p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="font-semibold text-gray-200 text-sm">{job.title || job.name}</div>
+                          <div className="text-xs text-gray-400 mt-1">{job.description || 'No description'}</div>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${job.status === 'active' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-200'}`}>
+                          {job.status || 'active'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3 pt-2 border-t border-white/10">
+                        <div className="text-xs text-gray-400">
+                          <span className="font-semibold text-gray-200">{job.employees || countUsersForJob(job)}</span> employees
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setEditJob(job); setShowJobModal(true) }} className="text-sm px-2 py-1 bg-white/5 rounded">✎</button>
+                          <button onClick={() => handleDeleteJob(job.id)} className="text-sm px-2 py-1 bg-red-600 rounded">🗑️</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

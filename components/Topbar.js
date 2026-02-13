@@ -16,16 +16,18 @@ export default function Topbar(){
   }
 
   return (
-    <header className="flex items-center justify-between p-4 bg-transparent border-b border-blue-900/20">
-      <div className="flex items-center gap-4">
-        <h2 className="text-xl text-white font-semibold">Dashboard Overview</h2>
-        <div className="text-sm text-gray-300">0 projects • 0 users</div>
+    <header className="flex flex-col md:flex-row items-start md:items-center justify-between p-3 md:p-4 bg-transparent border-b border-blue-900/20 gap-3 md:gap-0">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto">
+        <h2 className="text-lg md:text-xl text-white font-semibold">Dashboard Overview</h2>
+        <div className="text-xs md:text-sm text-gray-300">0 projects • 0 users</div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <input placeholder="Search..." className="bg-panel-muted text-sm px-3 py-2 rounded-md text-gray-300 outline-none focus:ring-1 focus:ring-accent-blue" />
-        <button onClick={handleLogout} className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors">Logout</button>
-        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-sm">A</div>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
+        <input placeholder="Search..." className="bg-panel-muted text-xs md:text-sm px-3 py-2 rounded-md text-gray-300 outline-none focus:ring-1 focus:ring-accent-blue flex-1 sm:flex-none" />
+        <div className="flex items-center gap-2">
+          <button onClick={handleLogout} className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs md:text-sm transition-colors flex-1 sm:flex-none">Logout</button>
+          <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-sm flex-shrink-0">A</div>
+        </div>
       </div>
     </header>
   )

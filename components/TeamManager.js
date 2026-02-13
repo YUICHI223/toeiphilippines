@@ -184,60 +184,60 @@ export default function TeamManager() {
   }
 
   return (
-    <div className="p-6 bg-gray-900">
+    <div className="p-4 md:p-6 bg-gray-900">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">👥 Team Management</h1>
-            <p className="text-gray-400">Manage teams and track team assignments</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center gap-2">👥 Team Management</h1>
+            <p className="text-xs md:text-sm text-gray-400">Manage teams and track team assignments</p>
           </div>
-          <div className="bg-accent-blue/10 border border-accent-blue/30 rounded px-4 py-3">
+          <div className="bg-accent-blue/10 border border-accent-blue/30 rounded px-3 md:px-4 py-2 md:py-3 text-sm w-full md:w-auto">
             <div className="text-xs text-gray-400 mb-1">👤 Admin Mode</div>
-            <div className="text-sm font-semibold text-accent-blue">Full team management access</div>
+            <div className="text-xs md:text-sm font-semibold text-accent-blue">Full team management access</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 mb-6">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-3 md:p-4 rounded">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">👥</div>
-              <div>
-                <div className="text-3xl font-bold">{totalTeams}</div>
+              <div className="text-2xl md:text-3xl">👥</div>
+              <div className="min-w-0">
+                <div className="text-2xl md:text-3xl font-bold">{totalTeams}</div>
                 <div className="text-xs text-blue-200">Total Teams</div>
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded">
+          <div className="bg-gradient-to-br from-green-600 to-green-700 p-3 md:p-4 rounded">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">✓</div>
-              <div>
-                <div className="text-3xl font-bold">{activeTeams}</div>
+              <div className="text-2xl md:text-3xl">✓</div>
+              <div className="min-w-0">
+                <div className="text-2xl md:text-3xl font-bold">{activeTeams}</div>
                 <div className="text-xs text-green-200">Active Teams</div>
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded">
+          <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-3 md:p-4 rounded">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">📦</div>
-              <div>
-                <div className="text-3xl font-bold">{uniqueTypes}</div>
+              <div className="text-2xl md:text-3xl">📦</div>
+              <div className="min-w-0">
+                <div className="text-2xl md:text-3xl font-bold">{uniqueTypes}</div>
                 <div className="text-xs text-orange-200">Team Types</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mb-4 flex gap-3 items-center">
+        <div className="mb-4 flex flex-col sm:flex-row gap-2 md:gap-3 items-start sm:items-center">
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="flex-1 bg-panel-muted px-4 py-2 rounded text-gray-200 border border-white/20 placeholder:text-gray-400"
+            className="flex-1 bg-panel-muted px-3 md:px-4 py-2 rounded text-gray-200 border border-white/20 placeholder:text-gray-400 text-sm w-full"
             placeholder="Search teams..."
           />
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
-            className="bg-panel-muted px-4 py-2 rounded text-gray-200 border border-white/20"
+            className="bg-panel-muted px-3 md:px-4 py-2 rounded text-gray-200 border border-white/20 text-sm w-full sm:w-auto"
           >
             {teamTypes.map(type => (
               <option key={type} value={type}>{type}</option>
@@ -245,23 +245,23 @@ export default function TeamManager() {
           </select>
           <button
             onClick={openAddModal}
-            className="bg-accent-blue hover:bg-blue-600 px-4 py-2 rounded text-white font-semibold flex items-center gap-2"
+            className="bg-accent-blue hover:bg-blue-600 px-4 py-2 rounded text-white font-semibold flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
           >
             + Create Team
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {loading ? (
-            <div className="col-span-3 text-center p-8 text-gray-400">Loading...</div>
+            <div className="col-span-full text-center p-8 text-gray-400 text-sm">Loading...</div>
           ) : filteredTeams.length === 0 ? (
-            <div className="col-span-3 text-center p-8 text-gray-400">No teams found</div>
+            <div className="col-span-full text-center p-8 text-gray-400 text-sm">No teams found</div>
           ) : (
             filteredTeams.map(team => (
-              <div key={team.id} className="bg-panel-dark border border-white/10 rounded p-4 hover:border-white/20 transition">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-semibold text-lg text-gray-200">{team.name}</h3>
-                  <div className="flex gap-2">
+              <div key={team.id} className="bg-panel-dark border border-white/10 rounded p-3 md:p-4 hover:border-white/20 transition">
+                <div className="flex justify-between items-start gap-2 mb-3">
+                  <h3 className="font-semibold text-sm md:text-lg text-gray-200">{team.name}</h3>
+                  <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => openEditModal(team)}
                       className="text-blue-400 hover:text-blue-300 text-lg"
@@ -281,24 +281,24 @@ export default function TeamManager() {
                   <p className="text-xs text-gray-400 mb-3">{team.description}</p>
                 )}
 
-                <div className="space-y-3">
-                  <div className="bg-panel-muted p-3 rounded">
+                <div className="space-y-2 md:space-y-3">
+                  <div className="bg-panel-muted p-2 md:p-3 rounded">
                     <div className="text-xs text-gray-400 mb-1">Team Checker</div>
-                    <div className="text-sm text-blue-400 flex items-center gap-1">
+                    <div className="text-xs md:text-sm text-blue-400 flex items-center gap-1">
                       👤 {getCheckerName(team.checker)}
                     </div>
                   </div>
 
-                  <div className="bg-panel-muted p-3 rounded">
+                  <div className="bg-panel-muted p-2 md:p-3 rounded">
                     <div className="text-xs text-gray-400 mb-2">Team Members</div>
                     <div className="flex items-start gap-2">
-                      <div className="text-sm text-blue-400">👥</div>
-                      <div>
-                        <div className="text-sm font-semibold text-gray-200">{team.members?.length || 0} members</div>
+                      <div className="text-sm">👥</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs md:text-sm font-semibold text-gray-200">{team.members?.length || 0} members</div>
                         {team.members && team.members.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
                             {getMemberNames(team.members).map((name, idx) => (
-                              <span key={idx} className="text-xs bg-blue-900/30 text-blue-300 px-2 py-1 rounded">
+                              <span key={idx} className="text-xs bg-blue-900/30 text-blue-300 px-2 py-1 rounded break-words">
                                 {name}
                               </span>
                             ))}

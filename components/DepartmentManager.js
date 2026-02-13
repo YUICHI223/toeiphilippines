@@ -225,45 +225,45 @@ export default function DepartmentManager() {
   }
 
   return (
-    <div className="p-6 bg-gray-900">
+    <div className="p-4 md:p-6 bg-gray-900">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-0 mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Department Management</h1>
-            <p className="text-gray-400">Manage company departments and organizational structure.</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Department Management</h1>
+            <p className="text-xs md:text-sm text-gray-400">Manage company departments and organizational structure.</p>
           </div>
           <button
             onClick={openAddModal}
-            className="bg-accent-blue hover:bg-blue-600 px-4 py-2 rounded text-white font-semibold"
+            className="bg-accent-blue hover:bg-blue-600 px-4 py-2 rounded text-white font-semibold text-sm w-full md:w-auto"
           >
             + New Department
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-panel-dark p-4 rounded border border-white/10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 mb-6">
+          <div className="bg-panel-dark p-3 md:p-4 rounded border border-white/10">
             <div className="flex items-center gap-3">
-              <div className="text-2xl">🏢</div>
-              <div>
-                <div className="text-2xl font-bold">{totalDepartments}</div>
+              <div className="text-lg md:text-2xl">🏢</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{totalDepartments}</div>
                 <div className="text-xs text-gray-400">Total Departments</div>
               </div>
             </div>
           </div>
-          <div className="bg-panel-dark p-4 rounded border border-white/10">
+          <div className="bg-panel-dark p-3 md:p-4 rounded border border-white/10">
             <div className="flex items-center gap-3">
-              <div className="text-2xl">✓</div>
-              <div>
-                <div className="text-2xl font-bold">{activeDepartments}</div>
+              <div className="text-lg md:text-2xl">✓</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{activeDepartments}</div>
                 <div className="text-xs text-gray-400">Active Departments</div>
               </div>
             </div>
           </div>
-          <div className="bg-panel-dark p-4 rounded border border-white/10">
+          <div className="bg-panel-dark p-3 md:p-4 rounded border border-white/10">
             <div className="flex items-center gap-3">
-              <div className="text-2xl">👥</div>
-              <div>
-                <div className="text-2xl font-bold">{totalEmployees}</div>
+              <div className="text-lg md:text-2xl">👥</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{totalEmployees}</div>
                 <div className="text-xs text-gray-400">Total Employees</div>
               </div>
             </div>
@@ -274,12 +274,13 @@ export default function DepartmentManager() {
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="bg-panel-muted px-4 py-2 rounded text-gray-200 w-full border border-white/20 placeholder:text-gray-400"
+            className="bg-panel-muted px-3 md:px-4 py-2 rounded text-gray-200 w-full border border-white/20 placeholder:text-gray-400 text-sm"
             placeholder="Search departments..."
           />
         </div>
 
-        <div className="bg-panel-dark rounded shadow overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block bg-panel-dark rounded shadow overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-blue-900/30">
@@ -326,6 +327,49 @@ export default function DepartmentManager() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="p-4 text-center text-gray-400 text-sm">Loading...</div>
+          ) : filteredDepartments.length === 0 ? (
+            <div className="p-4 text-center text-gray-400 text-sm">No departments found</div>
+          ) : filteredDepartments.map((dept) => (
+            <div key={dept.id} className="bg-panel-dark border border-blue-900/20 rounded p-4 hover:bg-panel-muted/50 transition">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="text-2xl">🏢</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm text-gray-200">{dept.name}</div>
+                  <div className="text-xs text-gray-400 mt-1">{dept.description || 'No description'}</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 py-3 border-t border-blue-900/20 mb-3">
+                <div>
+                  <div className="text-xs text-gray-400">Manager</div>
+                  <div className="text-sm text-blue-400">{getManagerName(dept.manager)}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400">Employees</div>
+                  <div className="text-sm text-blue-400">{getEmployeeCount(dept.name)}</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  className="flex-1 text-blue-400 text-xs hover:text-blue-300 py-2 bg-white/5 rounded"
+                  onClick={() => openEditModal(dept)}
+                >
+                  ✎ Edit
+                </button>
+                <button 
+                  className="flex-1 text-red-400 text-xs hover:text-red-300 py-2 bg-white/5 rounded"
+                  onClick={() => handleDeleteDepartment(dept.id)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Modal for Add/Edit Department */}

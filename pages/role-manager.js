@@ -7,7 +7,7 @@ export default function RoleManagerPage() {
   return (
     <div className="min-h-screen bg-bg-dark text-gray-200">
       <Sidebar />
-      <div className="pl-64">
+      <div className="md:pl-64 pl-0 pt-16 md:pt-0">
         <Topbar />
         <main className="p-0">
           <RoleManager />

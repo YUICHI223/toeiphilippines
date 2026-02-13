@@ -11,14 +11,14 @@ const VARIANTS = {
 export default function DashboardCard({ children, title, variant = 'default', icon, className }){
   const vclass = VARIANTS[variant] || VARIANTS.default
   return (
-    <div className={`rounded p-4 ${vclass} ${className || ''}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          {title && <div className="text-sm opacity-90 mb-2 font-medium">{title}</div>}
-          <div className="text-2xl font-bold">{children}</div>
+    <div className={`rounded p-3 md:p-4 ${vclass} ${className || ''}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          {title && <div className="text-xs md:text-sm opacity-90 mb-2 font-medium">{title}</div>}
+          <div className="text-xl md:text-2xl font-bold">{children}</div>
         </div>
         {icon && (
-          <div className="opacity-30 ml-4 flex-shrink-0" style={{fontSize: 40}}>
+          <div className="opacity-30 flex-shrink-0" style={{fontSize: 30, minWidth: 40}} >
             {icon}
           </div>
         )}

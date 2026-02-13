@@ -349,15 +349,15 @@ export default function ManageUsers() {
 
   return (
     <div className="w-full">
-      <div className="bg-panel-dark w-full px-8 py-6">
-        <div className="flex justify-between items-start">
+      <div className="bg-panel-dark w-full px-4 md:px-8 py-6">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
           <div>
-            <h1 className="text-4xl font-bold mb-2">User Management</h1>
-            <p className="text-gray-400 mb-6 text-base">Manage user accounts, roles, and permissions</p>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">User Management</h1>
+            <p className="text-xs md:text-base text-gray-400">Manage user accounts, roles, and permissions</p>
           </div>
           <div>
             <button
-              className="bg-accent-blue px-4 py-2 rounded text-white font-semibold"
+              className="bg-accent-blue px-4 py-2 rounded text-white font-semibold text-sm w-full md:w-auto"
               onClick={() => { setModalMode('add'); setCurrentUser(null); setShowModal(true) }}
             >
               + Add New User
@@ -365,32 +365,32 @@ export default function ManageUsers() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mb-6 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-6">
           <DashboardCard title="Total Users" variant="purple" icon="👥">
-            <div className="text-2xl font-bold">{totalUsers}</div>
+            <div className="text-xl md:text-2xl font-bold">{totalUsers}</div>
           </DashboardCard>
           <DashboardCard title="Active Users" variant="green" icon="✓">
-            <div className="text-2xl font-bold">{onlineUsers}</div>
+            <div className="text-xl md:text-2xl font-bold">{onlineUsers}</div>
           </DashboardCard>
           <DashboardCard title="Administrators" variant="orange" icon="⚙️">
-            <div className="text-2xl font-bold">{adminCount}</div>
+            <div className="text-xl md:text-2xl font-bold">{adminCount}</div>
           </DashboardCard>
           <DashboardCard title="Online Now" variant="teal" icon="🌐">
-            <div className="text-2xl font-bold">{onlineUsers}</div>
+            <div className="text-xl md:text-2xl font-bold">{onlineUsers}</div>
           </DashboardCard>
         </div>
 
-        <div className="mb-4 flex justify-between items-center">
-          <div className="w-2/3">
+        <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div className="w-full md:w-2/3">
             <input
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="bg-panel-muted px-4 py-2 rounded text-gray-200 w-full border border-white/20 placeholder:text-gray-400"
+              className="bg-panel-muted px-3 md:px-4 py-2 rounded text-gray-200 w-full border border-white/20 placeholder:text-gray-400 text-sm"
               placeholder="Search by name, id, department, role or email..."
             />
           </div>
-          <div className="flex items-center gap-3">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-panel-muted px-3 py-2 rounded text-gray-200 border border-white/20">
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-panel-muted px-3 py-2 rounded text-gray-200 border border-white/20 text-sm flex-1 md:flex-none">
               <option value="All">All Status</option>
               <option value="Online">Online</option>
               <option value="Offline">Offline</option>
@@ -398,8 +398,8 @@ export default function ManageUsers() {
           </div>
         </div>
 
-        {/* USER TABLE */}
-        <div className="mb-6">
+        {/* DESKTOP TABLE VIEW */}
+        <div className="mb-6 hidden md:block">
           <div className="bg-panel-dark rounded shadow overflow-x-auto">
             <table className="min-w-full w-full text-sm table-auto">
               <colgroup>
@@ -457,17 +457,63 @@ export default function ManageUsers() {
           </div>
         </div>
 
+        {/* MOBILE CARD VIEW */}
+        <div className="md:hidden space-y-3 mb-6">
+          {loading ? (
+            <div className="p-4 text-center text-gray-400 text-sm">Loading...</div>
+          ) : paginatedUsers.length === 0 ? (
+            <div className="p-4 text-center text-gray-400 text-sm">No users found</div>
+          ) : paginatedUsers.map((u) => (
+            <div key={u.id} className="bg-panel-muted border border-blue-900/30 rounded p-4 space-y-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm">{u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : (u.username || u.email || '-')}</div>
+                  <div className="text-xs text-gray-400 mt-1 break-all">{u.email || '-'}</div>
+                </div>
+                <span className={`inline-flex items-center gap-1 text-xs flex-shrink-0 ${isUserOnline(u) ? 'text-green-300' : 'text-gray-400'}`}>
+                  <span className={`w-2 h-2 rounded-full ${isUserOnline(u) ? 'bg-green-400' : 'bg-gray-600'}`} />
+                  {isUserOnline(u) ? 'Online' : 'Offline'}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div className="text-gray-400">Employee ID</div>
+                  <div className="text-gray-200 break-all">{u.employeeId || u.id || '-'}</div>
+                </div>
+                <div>
+                  <div className="text-gray-400">Job Title</div>
+                  <div className="text-gray-200">{(u.jobTitle) || (u.jobId && jobs.find(j => j.id === u.jobId)?.name) || '-'}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-gray-400">Department</div>
+                  <div className="text-gray-200">{(u.department) || (u.departmentId && departments.find(d => d.id === u.departmentId)?.name) || u.section || '-'}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-gray-400">Last Active</div>
+                  <div className="text-gray-200">{formatLastActive(u.lastActive)}</div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t border-blue-900/20">
+                <button className="flex-1 text-blue-400 py-2 bg-white/5 rounded text-xs hover:bg-white/10" onClick={() => { setModalMode('edit'); setCurrentUser(u); setShowModal(true) }}>✎ Edit</button>
+                <button className="flex-1 text-red-400 py-2 bg-white/5 rounded text-xs hover:bg-white/10" onClick={() => handleDeleteUser(u.id)}>🗑️ Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* PAGINATION */}
-        <div className="flex justify-center items-center gap-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-300">Items per page:</label>
+            <label className="text-xs md:text-sm text-gray-300">Items per page:</label>
             <select 
               value={pageSize} 
               onChange={(e) => {
                 setPageSize(Number(e.target.value))
                 setCurrentPage(1)
               }}
-              className="bg-panel-muted px-3 py-1 rounded text-gray-200 border border-white/20 text-sm"
+              className="bg-panel-muted px-3 py-1 rounded text-gray-200 border border-white/20 text-xs md:text-sm"
             >
               <option value={10}>10</option>
               <option value={15}>15</option>
@@ -476,11 +522,11 @@ export default function ManageUsers() {
             </select>
           </div>
 
-          <div className="bg-panel-muted rounded-full px-4 py-2 flex items-center gap-2">
+          <div className="bg-panel-muted rounded-full px-3 md:px-4 py-2 flex items-center gap-2 overflow-x-auto">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded-full bg-accent-blue text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+              className="px-2 md:px-3 py-1 rounded-full bg-accent-blue text-white text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 flex-shrink-0"
             >
               ← Prev
             </button>
@@ -493,7 +539,7 @@ export default function ManageUsers() {
                   ) : (
                     <button
                       onClick={() => typeof item === 'number' && setCurrentPage(item)}
-                      className={`px-3 py-1 rounded-full text-sm transition ${
+                      className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm transition ${
                         item === currentPage
                           ? 'bg-accent-blue text-white'
                           : 'text-gray-300 hover:text-white'
@@ -509,23 +555,23 @@ export default function ManageUsers() {
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded-full bg-accent-blue text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600"
+              className="px-2 md:px-3 py-1 rounded-full bg-accent-blue text-white text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 flex-shrink-0"
             >
               Next →
             </button>
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="text-xs md:text-sm text-gray-400 whitespace-nowrap">
             Showing {startIndex + 1}-{Math.min(endIndex, totalUsersFiltered)} of {totalUsersFiltered}
           </div>
         </div>
 
         {/* Modal for Add/Edit User */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-panel-dark p-6 rounded shadow max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
-              <button type="button" aria-label="Close" onClick={() => setShowModal(false)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-200">?</button>
-              <h2 className="text-xl font-bold mb-4">{modalMode === 'add' ? 'Add New User' : 'Edit User'}</h2>
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-panel-dark p-4 md:p-6 rounded shadow max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
+              <button type="button" aria-label="Close" onClick={() => setShowModal(false)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-200 text-2xl">×</button>
+              <h2 className="text-lg md:text-xl font-bold mb-4">{modalMode === 'add' ? 'Add New User' : 'Edit User'}</h2>
               <UserForm
                 user={currentUser}
                 mode={modalMode}

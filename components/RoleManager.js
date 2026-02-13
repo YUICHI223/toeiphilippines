@@ -541,28 +541,28 @@ export default function RoleManager() {
 
   return (
     <div className="w-full">
-      <div className="bg-panel-dark w-full px-8 py-6">
+      <div className="bg-panel-dark w-full px-4 md:px-8 py-6">
         
         {/* TEMPLATES SECTION */}
-        <div className="mb-12 flex justify-center">
-          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-8">
-            <h2 className="text-lg font-semibold mb-2 text-white">Role Templates</h2>
-            <p className="text-sm text-gray-400 mb-6">Quickly create roles from predefined templates</p>
+        <div className="mb-8 md:mb-12 flex justify-center">
+          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-4 md:p-8">
+            <h2 className="text-lg md:text-xl font-semibold mb-2 text-white">Role Templates</h2>
+            <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-6">Quickly create roles from predefined templates</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               {Object.entries(roleTemplates).map(([roleName, template]) => {
                 const roleExists = roles.some(r => r.name === roleName)
                 return (
                   <div 
                     key={roleName}
-                    className={`p-4 rounded border transition-all ${
+                    className={`p-3 md:p-4 rounded border transition-all ${
                       roleExists 
                         ? 'border-blue-900/40 bg-blue-900/10' 
                         : 'border-blue-900/30 bg-panel-muted hover:border-blue-900/60'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-sm font-semibold text-white flex-1">{roleName}</h3>
+                      <h3 className="text-xs md:text-sm font-semibold text-white flex-1">{roleName}</h3>
                       {roleExists && <span className="text-blue-400 text-lg">✓</span>}
                     </div>
                     
@@ -589,16 +589,16 @@ export default function RoleManager() {
         </div>
         
         {/* MANAGEMENT SECTION */}
-        <div className="mb-12 flex justify-center">
-          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-8">
-            <h2 className="text-lg font-semibold mb-2 text-white">Roles</h2>
-            <p className="text-sm text-gray-400 mb-6">Manage user roles and permissions</p>
+        <div className="mb-8 md:mb-12 flex justify-center">
+          <div className="w-full bg-panel-dark rounded shadow border border-blue-900/30 p-4 md:p-8">
+            <h2 className="text-lg md:text-xl font-semibold mb-2 text-white">Roles</h2>
+            <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-6">Manage user roles and permissions</p>
             
-            <div className="mb-6 p-4 bg-panel-muted border border-blue-900/30 rounded">
-              <div className="text-sm text-gray-300">
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-panel-muted border border-blue-900/30 rounded">
+              <div className="text-xs md:text-sm text-gray-300">
                 <span className="font-semibold text-white">{roles.length}</span> Total Roles
                 {searchTerm && (
-                  <span className="ml-4">
+                  <span className="ml-2 md:ml-4">
                     • <span className="font-semibold text-blue-400">{filteredRoles.length}</span> Matching
                   </span>
                 )}
@@ -610,16 +610,16 @@ export default function RoleManager() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-6 mb-6">
               <input
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="bg-panel-muted px-4 py-2 rounded text-gray-200 w-1/3 border border-white/20 placeholder:text-gray-400"
+                className="w-full md:w-1/3 bg-panel-muted px-3 md:px-4 py-2 rounded text-gray-200 border border-white/20 placeholder:text-gray-400 text-sm"
                 placeholder="Search roles..."
               />
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto">
                 <button
-                  className="px-4 py-2 rounded text-gray-200 border border-white/20 hover:bg-blue-900/20"
+                  className="px-3 md:px-4 py-2 rounded text-gray-200 border border-white/20 hover:bg-blue-900/20 text-sm flex-1 md:flex-none"
                   onClick={() => fetchRoles()}
                   aria-label="Refresh roles"
                 >
@@ -628,11 +628,11 @@ export default function RoleManager() {
 
                 <button
                   onClick={openAddModal}
-                  className="inline-flex items-center gap-2 bg-accent-blue px-3 py-2 rounded text-white font-semibold hover:bg-blue-600"
+                  className="inline-flex items-center gap-2 bg-accent-blue px-3 py-2 rounded text-white font-semibold hover:bg-blue-600 text-sm flex-1 md:flex-none justify-center md:justify-start"
                   aria-label="Create role"
                 >
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-white/10 text-white">+</span>
-                  <span className="text-sm">Create Role</span>
+                  <span className="inline-flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded bg-white/10 text-white">+</span>
+                  <span className="text-xs md:text-sm">Create Role</span>
                 </button>
               </div>
             </div>
@@ -642,39 +642,39 @@ export default function RoleManager() {
             ) : filteredRoles.length === 0 ? (
               <div className="text-center text-gray-400 py-8">No roles found</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {filteredRoles.map((role) => (
                   <div 
                     key={role.docId} 
-                    className="bg-panel-muted border border-blue-900/30 rounded p-4 hover:border-blue-900/60 transition-colors"
+                    className="bg-panel-muted border border-blue-900/30 rounded p-3 md:p-4 hover:border-blue-900/60 transition-colors"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-white">{role.name}</h3>
-                        <p className="text-xs text-gray-400 mt-1">{role.description || '-'}</p>
+                    <div className="flex justify-between items-start gap-2 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs md:text-sm font-semibold text-white truncate">{role.name}</h3>
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-2">{role.description || '-'}</p>
                       </div>
-                      <div className="flex gap-2 ml-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         <button
                           onClick={() => openEditModal(role)}
                           title="Edit"
                           aria-label={`Edit ${role.name}`}
-                          className="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-500 text-white transition"
+                          className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-500 text-white transition text-xs"
                         >
-                          <span className="text-sm">✎</span>
+                          ✎
                         </button>
 
                         <button
                           onClick={() => handleDeleteRole(role.docId)}
                           title="Delete"
                           aria-label={`Delete ${role.name}`}
-                          className="w-8 h-8 flex items-center justify-center rounded-md bg-red-600 hover:bg-red-500 text-white transition"
+                          className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-md bg-red-600 hover:bg-red-500 text-white transition text-xs"
                         >
-                          <span className="text-sm">🗑️</span>
+                          🗑️
                         </button>
                       </div>
                     </div>
 
-                    <div className="text-xs text-gray-400 mb-3 pb-3 border-b border-blue-900/20">
+                    <div className="text-xs text-gray-400 mb-3 pb-3 border-b border-blue-900/20 break-all">
                       <div>ID: {role.docId}</div>
                       <div className="text-xs text-gray-500 mt-1">Updated: {new Date().toLocaleTimeString()}</div>
                     </div>
@@ -697,7 +697,7 @@ export default function RoleManager() {
                         </div>
                         <div className="flex flex-wrap gap-1 mb-2">
                           {role.permissions.slice(0, 3).map((perm, i) => (
-                            <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300">
+                            <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300 break-words">
                               {perm}
                             </span>
                           ))}
@@ -713,7 +713,7 @@ export default function RoleManager() {
                         {expandedRoles[role.id] && role.permissions.length > 3 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {role.permissions.slice(3).map((perm, i) => (
-                              <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300">
+                              <span key={i} className="bg-blue-900/40 px-2 py-1 rounded text-xs text-blue-300 break-words">
                                 {perm}
                               </span>
                             ))}

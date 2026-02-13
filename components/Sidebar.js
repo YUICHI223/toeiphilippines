@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
 
 const items = [
   { label: 'Dashboard Overview', href: '/dashboards/admin', icon: 'dashboard' },
@@ -76,6 +76,7 @@ const iconMap = {
 export default function Sidebar(){
   const router = useRouter()
   const currentPath = router.pathname
+  const [isOpen, setIsOpen] = useState(false)
 
   const isActive = (href) => {
     if (href === '#') return false
@@ -83,46 +84,81 @@ export default function Sidebar(){
   }
 
   return (
-    <aside className="w-64 h-screen bg-slate-900 text-gray-200 border-r border-blue-800/40 fixed flex flex-col">
-      <div className="px-4 py-5 flex items-center gap-3 border-b border-blue-900/30 flex-shrink-0">
-        <div className="w-10 h-10 bg-blue-600 rounded flex items-center justify-center font-bold text-white">T</div>
-        <div className="text-sm font-semibold">Toei Animation Philippines Admin</div>
-      </div>
+    <>
+      {/* Mobile Menu Button - shown only on small screens */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-lg w-10 h-10 flex items-center justify-center hover:bg-blue-700 transition"
+        aria-label="Toggle menu"
+      >
+        {isOpen ? (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        )}
+      </button>
 
-      <nav className="flex-1 overflow-y-auto py-3 px-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-slate-800">
-        <ul className="space-y-1">
-          {items.map((it, i) => (
-            <li key={i}>
-              <Link href={it.href} legacyBehavior>
-                <a className={`flex items-center gap-3 px-3 py-2 rounded text-sm transition-all ${
-                  isActive(it.href)
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-blue-900/30 hover:text-white'
-                }`}>
-                  <span className="flex-shrink-0 text-blue-400">{iconMap[it.icon]}</span>
-                  <span className="truncate">{it.label}</span>
-                </a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {/* Overlay on mobile when menu is open */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      <div className="border-t border-blue-900/30 p-4 flex-shrink-0">
-        <div className="flex items-center gap-3 px-2 py-2 rounded hover:bg-blue-900/20 cursor-pointer transition-colors">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold">A</span>
+      {/* Sidebar - fixed on desktop, slide-in on mobile */}
+      <aside className={`
+        fixed md:fixed w-64 h-screen bg-slate-900 text-gray-200 border-r border-blue-800/40 flex flex-col 
+        transition-transform duration-300 ease-in-out z-40
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="px-4 py-5 flex items-center gap-3 border-b border-blue-900/30 flex-shrink-0">
+          <div className="w-10 h-10 bg-blue-600 rounded flex items-center justify-center font-bold text-white">T</div>
+          <div className="text-sm font-semibold">Toei Animation Philippines Admin</div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-3 px-2 scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-slate-800">
+          <ul className="space-y-1">
+            {items.map((it, i) => (
+              <li key={i}>
+                <Link href={it.href} legacyBehavior>
+                  <a 
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded text-sm transition-all ${
+                      isActive(it.href)
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-300 hover:bg-blue-900/30 hover:text-white'
+                    }`}
+                  >
+                    <span className="flex-shrink-0 text-blue-400">{iconMap[it.icon]}</span>
+                    <span className="truncate">{it.label}</span>
+                  </a>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="border-t border-blue-900/30 p-4 flex-shrink-0">
+          <div className="flex items-center gap-3 px-2 py-2 rounded hover:bg-blue-900/20 cursor-pointer transition-colors">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-bold">A</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold truncate">Admin</div>
+              <div className="text-xs text-gray-400">Administrator</div>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold truncate">Admin</div>
-            <div className="text-xs text-gray-400">Administrator</div>
+          <div className="text-xs text-gray-500 px-2 py-2 flex items-center gap-1">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+            System Online
           </div>
         </div>
-        <div className="text-xs text-gray-500 px-2 py-2 flex items-center gap-1">
-          <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-          System Online
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }

@@ -5,11 +5,11 @@ import DepartmentManager from '../components/DepartmentManager'
 
 export default function DepartmentsPage() {
   return (
-    <div className="flex h-screen bg-gray-900 text-gray-200">
+    <div className="min-h-screen bg-bg-dark text-gray-200">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="md:pl-64 pl-0 pt-16 md:pt-0">
         <Topbar />
-        <main className="p-0 overflow-y-auto">
+        <main className="p-0">
           <DepartmentManager />
         </main>
       </div>
