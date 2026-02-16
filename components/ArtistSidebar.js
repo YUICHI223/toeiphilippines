@@ -11,7 +11,7 @@ const items = [
   { label: 'Performance', href: '/dashboards/artist/performance', icon: 'chart' },
   { label: 'Attendance', href: '/dashboards/artist/attendance', icon: 'log' },
   { label: 'Leave Requests', href: '/dashboards/artist/leave-requests', icon: 'request' },
-  { label: 'My Profile', href: '/dashboards/artist/profile', icon: 'profile' },
+  { label: 'My Profile', href: '/profile', icon: 'profile' },
   { label: 'Team Chat', href: '/dashboards/artist/chat', icon: 'chat' },
 ]
 

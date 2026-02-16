@@ -34,8 +34,8 @@ const items = [
   { label: 'Suspensions', href: '#', icon: 'suspend' },
   { label: 'Force Leave', href: '#', icon: 'x' },
   { label: 'System Settings', href: '#', icon: 'gear' },
-  { label: 'My Profile', href: '#', icon: 'profile' },
-  { label: 'Team Chat', href: '#', icon: 'chat' },
+  { label: 'My Profile', href: '/profile', icon: 'profile' },
+  { label: 'Team Chat', href: '/dashboards/admin/chat', icon: 'chat' },
 ]
 
 const iconMap = {
