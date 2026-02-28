@@ -9,7 +9,7 @@ const items = [
   { label: 'Teams', href: '/teams', icon: 'teams' },
   { label: 'Departments', href: '/departments', icon: 'building' },
   { label: 'Jobs', href: '/jobs', icon: 'briefcase' },
-  { label: 'Production Control', href: '#', icon: 'settings' },
+  { label: 'Production Control', href: '/production-control', icon: 'settings' },
   { label: 'Downtime Management', href: '#', icon: 'zap' },
   { label: 'Quality Control', href: '#', icon: 'check' },
   { label: 'Production Oversight', href: '#', icon: 'chart' },
